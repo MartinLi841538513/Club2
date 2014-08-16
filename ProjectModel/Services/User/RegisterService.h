@@ -12,5 +12,5 @@
 @interface RegisterService : NSObject
 
 -(void)registerWithName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm onViewController:(RegisterViewController *)viewController;
-
+-(void)sendCodeActionWithLoginname:(NSString *)name;
 @end

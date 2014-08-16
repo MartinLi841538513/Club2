@@ -58,6 +58,8 @@
 -(void)loadView{
     [super loadView];
     
+    self.view.translatesAutoresizingMaskIntoConstraints=YES;
+    
     tableHeader.frame = CGRectMake(0, scrollView.frame.origin.y, DeviceFrame.size.width, 35);
     
     self.automaticallyAdjustsScrollViewInsets = NO;
@@ -67,9 +69,14 @@
     identifier = @"ItemInfosCell";
     UINib *nib = [UINib nibWithNibName:@"ItemInfosCell" bundle:nil];
     [tableview registerNib:nib forCellReuseIdentifier:identifier];
-    items = [[NSArray alloc] initWithObjects:@"",@"",@"",@"", nil];
-//    tableview.translatesAutoresizingMaskIntoConstraints = YES;
-    tableview.frame = CGRectMake(0, tableHeader.frame.origin.y+tableHeader.frame.size.height+3, DeviceFrame.size.width, items.count*34+60);
+    items = [[NSArray alloc] initWithObjects:@"",@"",@"",@"",@"",@"",@"", nil];
+    tableview.translatesAutoresizingMaskIntoConstraints = YES;
+    if (DeviceFrame.size.height==480) {
+        tableview.frame = CGRectMake(0,StatusBarFrame.size.height+NavigationBarFrame.size.height + tableHeader.frame.origin.y+tableHeader.frame.size.height+3, DeviceFrame.size.width, items.count*34+80);
+    }else{
+        tableview.frame = CGRectMake(0,StatusBarFrame.size.height+NavigationBarFrame.size.height + tableHeader.frame.origin.y+tableHeader.frame.size.height+3, DeviceFrame.size.width, items.count*34);
+    }
+
     totalPrice.frame = CGRectMake(218, tableview.frame.origin.y+tableview.frame.size.height-60, 87, 26);
     tips.frame = CGRectMake(3, tableview.frame.origin.y+tableview.frame.size.height-30, DeviceFrame.size.width, 40);
     sendMethodTitle.frame = CGRectMake(0, tips.frame.origin.y+tips.frame.size.height, DeviceFrame.size.width, 31);
@@ -82,7 +89,7 @@
     
     scrollView.scrollEnabled = YES;
     scrollView.frame = CGRectMake(0, StatusBarFrame.size.height+NavigationBarFrame.size.height, DeviceFrame.size.width, DeviceFrame.size.height-StatusBarFrame.size.height-NavigationBarFrame.size.height-50);
-    scrollView.contentSize = CGSizeMake(DeviceFrame.size.width, userInfo.frame.origin.y+userInfo.frame.size.height+20);
+    scrollView.contentSize = CGSizeMake(DeviceFrame.size.width, userInfo.frame.origin.y+userInfo.frame.size.height+80);
     
     seperateLine.frame = CGRectMake(0, scrollView.frame.origin.y+scrollView.frame.size.height+2, DeviceFrame.size.width, 1);
 }

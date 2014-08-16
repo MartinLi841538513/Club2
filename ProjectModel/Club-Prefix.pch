@@ -19,3 +19,11 @@
 #define StatusBarFrame [[UIApplication sharedApplication] statusBarFrame]
 #define NavigationBarFrame self.navigationController.navigationBar.frame
 #define TabBarFrame self.tabBarController.tabBar.frame
+
+
+#define PrexURL @"http://earea.stcyclub.com/wap.php/"
+#define LoginURL [PrexURL stringByAppendingString: @"Member/login?loginname=%@&password=%@"]
+#define ValicodeURL [PrexURL stringByAppendingString: @"Member/valicode?loginname=%@"]
+#define RegisterURL [PrexURL stringByAppendingString: @"Member/regist?loginname=%@&password=%@&Passwd=%@&code=%@"]
+
+
