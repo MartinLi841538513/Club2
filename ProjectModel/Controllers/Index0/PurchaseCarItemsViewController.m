@@ -59,7 +59,7 @@
     // Do any additional setup after loading the view.
     
     self.title = @"购物篮";
-    items = [[NSMutableArray alloc] initWithObjects:@"",@"",@"",@"", nil];
+    items = [[NSMutableArray alloc] initWithObjects:@"",@"",@"",@"",@"",@"",@"",@"", nil];
 }
 
 - (void)didReceiveMemoryWarning

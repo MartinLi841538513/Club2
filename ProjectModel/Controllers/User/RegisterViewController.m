@@ -42,8 +42,8 @@
 }
 
 - (IBAction)sendCodeAction:(id)sender {
-    
-    
+    NSString *name = loginname.text;
+    [registerService sendCodeActionWithLoginname:name];
 }
 
 

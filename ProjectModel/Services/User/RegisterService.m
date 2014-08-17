@@ -8,8 +8,21 @@
 
 #import "RegisterService.h"
 #import "SVProgressHUD.h"
+#import "InternetRequest.h"
 
 @implementation RegisterService
+
+-(void)sendCodeActionWithLoginname:(NSString *)name{
+    NSLog(@"%@",ValicodeURL);
+    NSString *urlString = [NSString stringWithFormat:ValicodeURL,name];
+    NSLog(@"%@",urlString);
+//    NSString *urlString = ValicodeURL
+//    if (name==nil||[name isEqualToString:@""]) {
+//        [SVProgressHUD showErrorWithStatus:@"请输入用户名"];
+//    }else{
+//        [InternetRequest dispatch_aync_LoadDataWithUrlString:; complite:
+//    }
+}
 
 -(void)registerWithName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm onViewController:(RegisterViewController *)viewController{
     if ([self validateRegisterName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm]) {
