@@ -14,4 +14,6 @@
 
 +(NSDictionary *)loadDataWithUrlString:(NSString *)urlString;
 
++(id)postUrlString:(NSString *)urlString withDict:(NSDictionary *)dict;
++(id)postUrlString:(NSString *)urlString withDict:(NSDictionary *)dict andImagePath:(NSString *)imagePath andImageName:(NSString *)imageName;
 @end

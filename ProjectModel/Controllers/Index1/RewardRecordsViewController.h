@@ -9,6 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface RewardRecordsViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
-@property(nonatomic,retain)NSArray *datas;
-
+@property(nonatomic,copy)NSString *userId;
 @end

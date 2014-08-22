@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "LoginViewController.h"
-
+#import "UserModel.h"
 @interface LoginService : NSObject
 
 /*
@@ -22,5 +22,7 @@
 
 //跳转到注册界面
 -(void)pushRegisterViewControllerOnViewController:(LoginViewController *)viewController;
+
+-(void)handlesWhenDismissLoginViewController:(LoginViewController *)loginViewContrller withUserInfos:(UserModel *)model;
 
 @end

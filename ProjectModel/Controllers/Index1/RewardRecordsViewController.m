@@ -8,14 +8,18 @@
 
 #import "RewardRecordsViewController.h"
 #import "RewardCell.h"
+#import "MJRefresh.h"
+#import "InternetRequest.h"
+#import "SVProgressHUD.h"
+#import "NSString+MT.h"
 
 @interface RewardRecordsViewController ()
 {
     
     __weak IBOutlet UITableView *tableview;
-    NSArray *titles;
-    NSArray *times;
+    NSMutableArray *datas;
     NSString *identifier;
+    NSInteger page;
 }
 @end
 
@@ -43,9 +47,88 @@
 {
     [super viewDidLoad];
     self.title = @"中奖记录";
-    titles = [[NSArray alloc] initWithObjects:@"¥1.80",@"¥2.80",@"¥3.80",@"¥4.80",@"¥5.80",@"¥6.80",@"¥7.80",@"¥8.80",@"¥9.80",@"¥10.80", nil];
-    times = [[NSArray alloc] initWithObjects:@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21",@"2014-08-21", nil];
+    datas = [[NSMutableArray alloc] init];
+    page = 0;
+    [self setupRefresh];
 }
+
+/**
+ *  集成刷新控件
+ */
+- (void)setupRefresh
+{
+    // 1.下拉刷新(进入刷新状态就会调用self的headerRereshing)
+    [tableview addHeaderWithTarget:self action:@selector(headerRereshing)];
+    [tableview headerBeginRefreshing];
+    
+    // 2.上拉加载更多(进入刷新状态就会调用self的footerRereshing)
+    [tableview addFooterWithTarget:self action:@selector(footerRereshing)];
+    
+    // 设置文字(也可以不设置,默认的文字在MJRefreshConst中修改)
+    tableview.headerPullToRefreshText = @"下拉可以刷新了";
+    tableview.headerReleaseToRefreshText = @"松开马上刷新了";
+    tableview.headerRefreshingText = @"正在帮你刷新中";
+    
+    tableview.footerPullToRefreshText = @"上拉可以加载更多数据了";
+    tableview.footerReleaseToRefreshText = @"松开马上加载更多数据了";
+    tableview.footerRefreshingText = @"正在帮你加载中";
+}
+
+#pragma mark 开始进入刷新状态
+- (void)headerRereshing
+{
+    page = 1;
+    NSString *pageString = [NSString stringWithFormat:@"%ld",(long)page];
+    NSString *urlString = [NSString stringWithFormat:@"http://earea.stcyclub.com/wap.php/Prize/mylucky?mid=%@&page=%@",@"38",pageString];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSDictionary *result = [InternetRequest loadDataWithUrlString:urlString];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            NSNumber *status = (NSNumber *)[result objectForKey:@"status"];
+            if ([status isEqual:[NSNumber numberWithInt:2]]) {
+                [datas removeAllObjects];
+                id infos = [result objectForKey:@"info"];
+                if ([infos isKindOfClass:[NSArray class]]) {
+                    [datas addObjectsFromArray:infos];
+                }
+                [tableview reloadData];
+                [tableview headerEndRefreshing];
+            }else{
+                [SVProgressHUD showErrorWithStatus:@"没有数据"];
+                [tableview headerEndRefreshing];
+                page = 0;
+            }
+        });
+    });
+}
+
+- (void)footerRereshing
+{
+    page++;
+    NSString *pageString = [NSString stringWithFormat:@"%ld",(long)page];
+    NSString *urlString = [NSString stringWithFormat:@"http://earea.stcyclub.com/wap.php/Prize/mylucky?mid=%@&page=%@",@"38",pageString];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSDictionary *result = [InternetRequest loadDataWithUrlString:urlString];
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            NSNumber *status = (NSNumber *)[result objectForKey:@"status"];
+            if ([status isEqual:[NSNumber numberWithInt:2]]) {
+                id infos = [result objectForKey:@"info"];
+                if ([infos isKindOfClass:[NSArray class]]) {
+                    [datas addObjectsFromArray:infos];
+                    [tableview reloadData];
+                }else{
+                    [SVProgressHUD showErrorWithStatus:@"没有更多数据了"];
+                }
+                [tableview footerEndRefreshing];
+            }else{
+                [SVProgressHUD showErrorWithStatus:@"没有更多数据了"];
+                [tableview footerEndRefreshing];
+                page--;
+            }
+        });
+    });
+    
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -62,7 +145,7 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return titles.count;
+    return datas.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -73,12 +156,13 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSUInteger row = indexPath.row;
+    NSUInteger row = indexPath.section;
     RewardCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier forIndexPath:indexPath];
-    
+    NSDictionary *data = [datas objectAtIndex:row];
     // Configure the cell...
-    cell.rewardValue.text = [titles objectAtIndex:row];
-    cell.time.text = [times objectAtIndex:row];
+    cell.rewardValue.text = [data objectForKey:@"cash"];
+    NSString *stamp = [data objectForKey:@"regtime"];
+    cell.time.text = [stamp timeType1FromStamp:stamp];
     return cell;
 }
 

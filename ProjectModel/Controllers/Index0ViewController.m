@@ -11,6 +11,7 @@
 #import "BuyViewController.h"
 #import "LoginViewOperation.h"
 #import "UserDefaults.h"
+#import "InternetRequest.h"
 
 @interface Index0ViewController ()
 {
@@ -60,6 +61,14 @@
     robButton.frame = CGRectMake(0, imgView.frame.origin.y+imgView.frame.size.height+space, DeviceFrame.size.width, height);
     buyButton.frame = CGRectMake(0, robButton.frame.origin.y+robButton.frame.size.height+space, DeviceFrame.size.width, height);
     
+//    [self testPostRequest];
+}
+//测试post请求，测试完成后要删掉
+-(void)testPostRequest{
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@"object1",@"key1",@"object2",@"key2",@"object3",@"key4", nil];
+    NSString *urlString = @"http://192.168.1.102:8080/TestRequest/TestRequest";
+//    [InternetRequest postUrlString:urlString withDict:dict];
+    [InternetRequest postUrlString:urlString withDict:dict andImagePath:@"" andImageName:@"userIcon.jpg"];
 }
 
 -(void)imgAction:(id)sender{

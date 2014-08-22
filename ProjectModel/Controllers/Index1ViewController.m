@@ -9,7 +9,9 @@
 #import "Index1ViewController.h"
 #import "InternetRequest.h"
 #import "Index1Service.h"
-
+#import "UserDefaults.h"
+#import "UserModel.h"
+#import "SVProgressHUD.h"
 #define HongbaoImg [UIImage imageNamed:@"hongbao.jpg"]
 #define CurImg nil
 
@@ -28,6 +30,7 @@
     __weak IBOutlet UIImageView *view11;
     __weak IBOutlet UIImageView *view12;
     __weak IBOutlet UIButton *startButton;
+    __weak IBOutlet UILabel *tipLabel;
     
     NSArray *array;
     NSArray *datas;
@@ -38,6 +41,8 @@
     float endTimerTotal;//减速共耗时间
 
     Index1Service *index1Service;
+    UserDefaults *userDefaults;
+    UserModel *userModel;
 }
 @end
 
@@ -64,6 +69,10 @@
         UIImageView *view = array[i];
         view.tag = i;
     }
+    
+    userDefaults = [[UserDefaults alloc] init];
+    userModel = [userDefaults userModel];
+    tipLabel.text = [NSString stringWithFormat:@"您当前还有%ld次机会，已有%ld人参与抽奖",userModel.nums,userModel.peoples];
     datas = [[NSArray alloc] initWithObjects:@"0.88",@"0.20",@"5.00",@"0.80",@"1.80",@"谢谢参与",@"188.00",@"2.80",@"0.18",@"0.08",@"18.00",@"1.20",nil];
 }
 
@@ -75,25 +84,25 @@
 
 //抽奖
 - (IBAction)drawLotteryAction:(id)sender {
-    [self initViews];
-    timer = [NSTimer scheduledTimerWithTimeInterval:intervalTime target:self selector:@selector(startChoujiang:) userInfo:currentView repeats:NO];
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        [InternetRequest loadDataWithUrlString:@"http://old.idongway.com/sohoweb/q?method=store.get&format=json&cat=1"];
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            
-            NSUInteger resultValue = 3;
-            [self endChoujiangWithResultValue:resultValue];
-            
-        });
-    });
-    
+    NSInteger num = userModel.nums;
+    if (num==0) {
+        [SVProgressHUD showErrorWithStatus:@"您今日抽奖次数已用完"];
+    }else{
+        [self initViews];
+        timer = [NSTimer scheduledTimerWithTimeInterval:intervalTime target:self selector:@selector(startChoujiang:) userInfo:currentView repeats:NO];
+        num--;
+        userModel.nums = num;
+        [userDefaults setUserModel:userModel];
+        tipLabel.text = [NSString stringWithFormat:@"您当前还有%ld次机会，已有%ld人参与抽奖",userModel.nums,userModel.peoples];
+    }
+
 }
 - (IBAction)checkRules:(id)sender {
     NSString *urlString = @"http://earea.stcyclub.com/wap.php/Member/agree";
     [index1Service loadWebViewWithURLString:urlString onViewContrller:self];
 }
 - (IBAction)rewardRecord:(id)sender {
-    [index1Service presentRewardRecordViewControllerInViewController:self];
+    [index1Service presentRewardRecordViewControllerInViewController:self withUserId:userModel.mid];
 }
 
 //初始化views的效果
@@ -111,6 +120,8 @@
     NSTimer *myTimer = (NSTimer *)sender;
     UIImageView *preView = (UIImageView *)myTimer.userInfo;
     NSUInteger index;
+    static NSUInteger resultValue=13;
+
     if (preView==nil) {
         index = 0;
     }else{
@@ -124,9 +135,31 @@
     
     [index1Service moveCurrentView:currentView inArray:array];
     
-    
+    NSLog(@"%f",intervalTime);
     if (intervalTime>0.1) {
         intervalTime = intervalTime - 0.1;
+    }else{
+        static int rotateCount = 0;
+        rotateCount ++;
+        if (rotateCount==2*count) {
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                NSLog(@"aa:%lu",(unsigned long)resultValue);
+                if (resultValue==13) {
+                    resultValue = 14;//这里设置13，14主要是用来防止在一次抽奖，发送了2次请求
+                    resultValue= [index1Service serialidBytakeLottery];
+                    if (resultValue==0) {
+                        resultValue=6;
+                    }
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        NSLog(@"ss:%lu",(unsigned long)resultValue);
+                        [self endChoujiangWithResultValue:resultValue];
+                        resultValue = 13;
+                    });
+                }
+
+            });
+            rotateCount = 0;
+        }
     }
     timer = [NSTimer scheduledTimerWithTimeInterval:intervalTime target:self selector:@selector(startChoujiang:) userInfo:currentView repeats:NO];
 }
@@ -139,14 +172,14 @@
 
 //减速至停止
 -(void)moveToStopWithAccelerate{
-    
+
     static float timeTotal = 0;
     if (timeTotal<endTimerTotal) {
         intervalTime = intervalTime+accelerate;
         timeTotal = timeTotal+intervalTime;
-        [timer invalidate];
         currentView = [index1Service nextViewByCurrentView:currentView andArray:array];
         [index1Service moveCurrentView:currentView inArray:array];
+        [timer invalidate];
         timer = [NSTimer scheduledTimerWithTimeInterval:intervalTime target:self selector:@selector(moveToStopWithAccelerate) userInfo:nil repeats:NO];
     }else{
         [timer invalidate];

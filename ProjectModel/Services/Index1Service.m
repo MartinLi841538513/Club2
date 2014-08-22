@@ -9,10 +9,48 @@
 #import "Index1Service.h"
 #import "WebViewController.h"
 #import "RewardRecordsViewController.h"
+#import "PrizeDao.h"
+#import "SVProgressHUD.h"
+#import "UserDefaults.h"
+#import "UserModel.h"
 #define HongbaoImg [UIImage imageNamed:@"hongbao.jpg"]
 #define CurImg nil
 
 @implementation Index1Service
+
+-(NSInteger)serialidBytakeLottery{
+    NSInteger serialid;
+    UserDefaults *userDefaults = [[UserDefaults alloc] init];
+    UserModel *userModel = [userDefaults userModel];
+    PrizeDao *prizedao = [[PrizeDao alloc] init];
+    PrizeModel *model = [prizedao takeLotteryWithUserId:userModel.mid];
+    if (model == nil) {
+        serialid = 0;
+    }else{
+        serialid = [model.serialid integerValue];
+    }
+    return serialid;
+}
+
+//抽中的prizeModel去匹配红包cash
+-(NSString *)cashMatchUserInfosWithPrize:(PrizeModel *)prizeModel{
+    NSString *cash = @"";
+    UserDefaults *userDefaults = [[UserDefaults alloc] init];
+    UserModel *userModel = [userDefaults userModel];
+    NSArray *prizes = userModel.rotary;
+    NSInteger length = prizes.count;
+    for (int i; i<length; i++) {
+        NSDictionary *prize = [prizes objectAtIndex:i];
+        if ([prizeModel.serialid isEqualToString:[prize objectForKey:@"serialid"]]) {
+            cash = [prize objectForKey:@"cash"];
+        }
+    }
+    if ([cash isEqualToString:@""]) {
+        [SVProgressHUD showErrorWithStatus:@"抽到的奖后台没有录入"];
+    }
+    return cash;
+}
+
 
 //得到上一个view
 -(UIImageView *)previewByCurrentView:(UIImageView *)curView andArray:(NSArray *)views{
@@ -82,10 +120,11 @@
 }
 
 //跳至中奖记录
--(void)presentRewardRecordViewControllerInViewController:(UIViewController *)viewController{
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        RewardRecordsViewController *recordViewController = [storyboard instantiateViewControllerWithIdentifier:@"RewardRecordsViewController"];
-        recordViewController.hidesBottomBarWhenPushed = YES;
-        [viewController.navigationController pushViewController:recordViewController animated:YES];
+-(void)presentRewardRecordViewControllerInViewController:(UIViewController *)viewController withUserId:(NSString *)userId{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    RewardRecordsViewController *recordViewController = [storyboard instantiateViewControllerWithIdentifier:@"RewardRecordsViewController"];
+    recordViewController.hidesBottomBarWhenPushed = YES;
+    recordViewController.userId = userId;
+    [viewController.navigationController pushViewController:recordViewController animated:YES];
 }
 @end

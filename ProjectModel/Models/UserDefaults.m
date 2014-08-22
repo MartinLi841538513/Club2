@@ -30,4 +30,20 @@
 {
     return [self.userDefaults valueForKey:@"isLogin"];
 }
+
+//登陆状态
+-(void)setUserModel:(UserModel *)userModel
+{
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:userModel];
+    [self.userDefaults setObject:data forKey:@"userModel"];
+    [self.userDefaults synchronize];
+}
+
+-(UserModel *)userModel
+{
+    NSData *data = [self.userDefaults objectForKey:@"userModel"];
+    UserModel *model = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    return model;
+}
+
 @end

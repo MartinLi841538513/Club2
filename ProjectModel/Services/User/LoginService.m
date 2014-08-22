@@ -10,17 +10,38 @@
 #import "SVProgressHUD.h"
 #import "RegisterViewController.h"
 #import "UserDefaults.h"
+#import "MyMD5.h"
+#import "InternetRequest.h"
+#import "UserDao.h"
+#import "ChooseAreaViewController.h"
 
 @implementation LoginService
 
 -(void)loginWithName:(NSString *)name andPasswd:(NSString *)passwd onViewController:(LoginViewController *)viewController{
     if ([self validateLoginInfosWithName:name andPasswd:passwd]) {
-        [viewController.delegate loginSuccessedActionWithViewController:viewController];  //dismiss viewcontroller
         
-        UserDefaults *userdefaults = [[UserDefaults alloc] init]; //set login status
-        [userdefaults setIsLogin:@"YES"];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"loginSuccessAction" object:self];  //loadData
+        [SVProgressHUD show];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            //InteractWithServerOnJSON interactWithServerOnJSON 这是我自己封装的加载json数据的方法
+            UserDao *userDao = [[UserDao alloc] init];
+            UserModel *model = [userDao getUserWithName:name andPassword:passwd];
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                if (model==nil) {
+                    [SVProgressHUD showErrorWithStatus:@"登录失败"];
+                }else{
+                    [SVProgressHUD showSuccessWithStatus:@"登录成功"];
+                    if (model.sid==nil||[model.sid isEqualToString:@""]) {
+                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"User" bundle:nil];
+                        ChooseAreaViewController *chooseAreaViewController = [storyboard instantiateViewControllerWithIdentifier:@"ChooseAreaViewController"];
+                        chooseAreaViewController.userModel = model;
+                        chooseAreaViewController.loginViewController = viewController;
+                        [viewController.navigationController pushViewController:chooseAreaViewController animated:YES];
+                    }else{
+                        [self handlesWhenDismissLoginViewController:viewController withUserInfos:(UserModel *)model];
+                    }
+                }
+            });
+        });
     }
 }
 
@@ -42,9 +63,20 @@
         [SVProgressHUD showErrorWithStatus:@"密码不能为空"];
         return false;
     }else{
-        [SVProgressHUD showSuccessWithStatus:@"登录成功"];
         return true;
     }
+}
+
+//dismiss LoginViewController时处理操作
+-(void)handlesWhenDismissLoginViewController:(LoginViewController *)loginViewContrller withUserInfos:(UserModel *)model{
+    [loginViewContrller.delegate loginSuccessedActionWithViewController:loginViewContrller];  //dismiss viewcontroller
+    
+    UserDefaults *userdefaults = [[UserDefaults alloc] init]; //set login status
+    [userdefaults setIsLogin:@"YES"];
+    [userdefaults setUserModel:model];    //set UserInfos 
+    
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"loginSuccessAction" object:self];  //loadData
 }
 
 @end

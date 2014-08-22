@@ -7,11 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "UserModel.h"
 @interface UserDefaults : NSObject
 
 @property (retain, nonatomic) NSUserDefaults *userDefaults;
 
+@property (retain,nonatomic)UserModel *userModel;
 @property (copy, nonatomic) NSString *isLogin;
 
 

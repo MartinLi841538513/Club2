@@ -9,14 +9,17 @@
 #import "Index4ViewController.h"
 #import "InternetRequest.h"
 #import "Index4Service.h"
+#import "ProduceCode.h"
 
 @interface Index4ViewController ()
 {
 
     __weak IBOutlet UITextView *urlTextView;
+    __weak IBOutlet UITextField *infoText;
     __weak IBOutlet UITextField *modelText;
     
     Index4Service *service;
+    ProduceCode *produceCode;
 }
 @end
 
@@ -38,6 +41,8 @@
     service = [[Index4Service alloc] init];
     NSArray *userinfos = [service getUserinfosWithUsername:@"tx" andPassword:@"123456"];
     [service printUserinfos:userinfos];
+    
+    produceCode = [[ProduceCode alloc] init];
 }
 
 - (void)didReceiveMemoryWarning
@@ -46,54 +51,41 @@
     // Dispose of any resources that can be recreated.
 }
 
+//生成arrayModel
 - (IBAction)produceAction:(id)sender {
     NSString *urlString = urlTextView.text;
+    NSString *infoString = infoText.text;
     NSString *modelString = modelText.text;
     [InternetRequest dispatch_aync_LoadDataWithUrlString:urlString complite:^(id result){
-        NSArray *datas = [result objectForKey:modelString];
+//        NSArray *datas = [result objectForKey:infoString];
+        NSDictionary *dict = [result objectForKey:infoString];
+        NSArray *datas = [dict objectForKey:@"order"];
         NSDictionary *data = [datas firstObject];
         NSArray *keys = data.allKeys;
-        [self produceModelWithKeys:keys];
-        [self produceModelsTransformWithModelString:modelString];
-        [self produceModelTransformWithKeys:keys andModelString:modelString];
+        [produceCode produceCodeWithModelString:modelString andKeys:keys];
 
     }];
 }
 
--(void)produceModelWithKeys:(NSArray *)keys{
-    NSMutableString *modelContent = [[NSMutableString alloc] init];
-    for (NSString *key in keys) {
-        [modelContent appendString:[NSString stringWithFormat:@"\n@property (copy, nonatomic) NSString *%@;",key]];
-    }
-    NSLog(@"%@",modelContent);
+//生成dictionary
+- (IBAction)produceDictModelAction:(id)sender {
+    
+    NSString *urlString = urlTextView.text;
+    NSString *infoString = infoText.text;
+    NSString *modelString = modelText.text;
+    [InternetRequest dispatch_aync_LoadDataWithUrlString:urlString complite:^(id result){
+        NSDictionary *data = [result objectForKey:infoString];
+        NSArray *keys = data.allKeys;
+        [produceCode produceCodeWithModelString:modelString andKeys:keys];
+        
+    }];
+
 }
 
--(void)produceModelsTransformWithModelString:(NSString *)modelString{
-    NSString *ModelString = [NSString stringWithFormat:@"%@Model",[modelString capitalizedString]];
-    NSMutableString *modelsTransformContent = [[NSMutableString alloc] init];
-    [modelsTransformContent appendString:@"\n-(NSArray *)modelsWithDicts:(NSArray *)dicts{"];
-    [modelsTransformContent appendString:@"\n   NSMutableArray *models = [[NSMutableArray alloc] init];"];
-    [modelsTransformContent appendString:@"\n   for(NSDictionary *dict in dicts){"];
-    [modelsTransformContent appendString:[NSString stringWithFormat:@"\n        %@ *model = [self modelWithDict:dict];",ModelString]];
-    [modelsTransformContent appendString:@"\n       [models addObject:model];"];
-    [modelsTransformContent appendString:@"\n   }"];
-    [modelsTransformContent appendString:@"\n   return models;"];
-    [modelsTransformContent appendString:@"\n}"];
-    NSLog(@"%@",modelsTransformContent);
-}
 
--(void)produceModelTransformWithKeys:(NSArray *)keys andModelString:(NSString *)modelString{
-    NSString *ModelString = [NSString stringWithFormat:@"%@Model",[modelString capitalizedString]];
-    NSMutableString *modelTransformContent = [[NSMutableString alloc] init];
-    [modelTransformContent appendString:[NSString stringWithFormat:@"\n-(%@ *)modelWithDict:(NSDictionary *)dict{",ModelString]];
-    [modelTransformContent appendString:[NSString stringWithFormat:@"\n  %@ *model = [[%@ alloc] init];",ModelString,ModelString]];
-    for (NSString *key in keys) {
-        [modelTransformContent appendString:[NSString stringWithFormat:@"\n  model.%@ = [dict valueForKey:@\"%@\"];",key,key]];
-    }
-    [modelTransformContent appendString:@"\n  return model;"];
-    [modelTransformContent appendString:@"\n}"];
-    NSLog(@"%@",modelTransformContent);
-}
+
+
+
 
 
 @end

@@ -257,6 +257,7 @@
                     <navigationItem key="navigationItem" title="会员抽奖" id="kAb-4Z-PsH"/>
                     <connections>
                         <outlet property="startButton" destination="1v3-Xa-mgJ" id="yhb-cT-8Th"/>
+                        <outlet property="tipLabel" destination="54U-EP-FOf" id="D6S-Jl-6Kp"/>
                         <outlet property="view1" destination="Sk0-iW-3eo" id="hUc-ZC-AWO"/>
                         <outlet property="view10" destination="P1C-eg-UE4" id="SP4-rG-5ZY"/>
                         <outlet property="view11" destination="SCs-Nn-Qd5" id="CHg-MT-C6C"/>
@@ -331,17 +332,33 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3X7-j5-bVC">
-                                <rect key="frame" x="215" y="163" width="85" height="30"/>
+                                <rect key="frame" x="191" y="163" width="121" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="produce">
+                                <state key="normal" title="produceArray">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
                                     <action selector="produceAction:" destination="RBl-fO-102" eventType="touchUpInside" id="rwf-oY-G2k"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ModelTest" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="65K-bg-4bs">
-                                <rect key="frame" x="6" y="163" width="97" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="model" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="65K-bg-4bs">
+                                <rect key="frame" x="8" y="210" width="164" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6lR-Rp-jbC">
+                                <rect key="frame" x="190" y="210" width="126" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="produceDictionary">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="produceDictModelAction:" destination="RBl-fO-102" eventType="touchUpInside" id="pS0-1I-5lM"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="info" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="qmr-Ss-BVG">
+                                <rect key="frame" x="8" y="163" width="164" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -351,6 +368,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" id="sJz-pB-aT4"/>
                     <connections>
+                        <outlet property="infoText" destination="qmr-Ss-BVG" id="SNF-pJ-DDw"/>
                         <outlet property="modelText" destination="65K-bg-4bs" id="Xdg-xs-KaD"/>
                         <outlet property="urlTextView" destination="7Uk-KW-MsO" id="cRy-Bj-KEw"/>
                     </connections>
@@ -685,7 +703,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="69P-Ws-vrI">
-                                <rect key="frame" x="24" y="234" width="66" height="27"/>
+                                <rect key="frame" x="22" y="234" width="66" height="27"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.50196081399917603" blue="0.25098040699958801" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
@@ -772,10 +790,11 @@
                     </view>
                     <navigationItem key="navigationItem" id="Wq7-sA-Rg9"/>
                     <connections>
-                        <outlet property="itemImage" destination="Rd6-Q9-OB0" id="Dwm-he-uen"/>
-                        <outlet property="itemNameLabel" destination="JQf-QB-RQH" id="jse-oa-gOV"/>
-                        <outlet property="itemPastPriceLabel" destination="Wpy-hl-eCk" id="PcR-db-BIZ"/>
-                        <outlet property="itemRobTimeLabel" destination="gSk-ot-UsA" id="xmH-kg-dsu"/>
+                        <outlet property="itemCount" destination="gSk-ot-UsA" id="zr6-wF-k8N"/>
+                        <outlet property="itemImage" destination="Rd6-Q9-OB0" id="2cq-6O-1Dl"/>
+                        <outlet property="itemNameLabel" destination="JQf-QB-RQH" id="Dnc-1P-Kk0"/>
+                        <outlet property="itemPastPriceLabel" destination="Wpy-hl-eCk" id="RE5-G6-dcs"/>
+                        <outlet property="startTimeButton" destination="69P-Ws-vrI" id="Md3-nN-O17"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hkM-ng-s3G" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -9,26 +9,25 @@
 #import "RobViewController.h"
 #import "PastItemsTableViewController.h"
 #import "RobedRecordsTableViewController.h"
-
+#import "RobService.h"
+#import "UserDefaults.h"
+#import "UserModel.h"
+#import "NSString+MT.h"
 @interface RobViewController ()
 {
     
-    __weak IBOutlet UIImageView *itemImage;
-    __weak IBOutlet UILabel *itemNameLabel;
-    __weak IBOutlet UILabel *itemPastPriceLabel;
-    __weak IBOutlet UILabel *itemRobTimeLabel;
-    
-    
+    RobService *robService;
+    UserModel *userModel;
 }
 @end
 
 @implementation RobViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
+-(id)initWithCoder:(NSCoder *)aDecoder{
+    if (self = [super initWithCoder:aDecoder]) {
+        robService = [[RobService alloc] init];
+        UserDefaults *userDefaults = [[UserDefaults alloc] init];
+        userModel = userDefaults.userModel;
     }
     return self;
 }
@@ -43,6 +42,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.title = @"抢";
+    
+    //给 self.robModel
+    [robService setRobModelWithSid:userModel.sid inViewController:self];
+
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -57,7 +60,7 @@
 
 //抢
 - (IBAction)buyOrRobAction:(id)sender {
-    NSLog(@"buyOrRob");
+    [robService robWithMid:userModel.mid andSid:userModel.sid andGid:self.robModel.gid];
 }
 
 //抢菜记录

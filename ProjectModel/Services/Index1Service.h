@@ -10,6 +10,7 @@
 
 @interface Index1Service : NSObject
 
+-(NSInteger)serialidBytakeLottery;
 
 -(UIImageView *)previewByCurrentView:(UIImageView *)curView andArray:(NSArray *)views;
 -(UIImageView *)nextViewByCurrentView:(UIImageView *)curView andArray:(NSArray *)views;
@@ -21,5 +22,5 @@
 
 -(void)loadWebViewWithURLString:(NSString *)URLString onViewContrller:(UIViewController *)viewController;
 
--(void)presentRewardRecordViewControllerInViewController:(UIViewController *)viewController;
+-(void)presentRewardRecordViewControllerInViewController:(UIViewController *)viewController withUserId:(NSString *)userId;
 @end

@@ -9,25 +9,53 @@
 #import "RegisterService.h"
 #import "SVProgressHUD.h"
 #import "InternetRequest.h"
+#import "MyMD5.h"
+#import "UserDao.h"
 
 @implementation RegisterService
 
+/*
+    1,验证是否电话号码
+ 
+ */
 -(void)sendCodeActionWithLoginname:(NSString *)name{
-    NSLog(@"%@",ValicodeURL);
-    NSString *urlString = [NSString stringWithFormat:ValicodeURL,name];
-    NSLog(@"%@",urlString);
-//    NSString *urlString = ValicodeURL
-//    if (name==nil||[name isEqualToString:@""]) {
-//        [SVProgressHUD showErrorWithStatus:@"请输入用户名"];
-//    }else{
-//        [InternetRequest dispatch_aync_LoadDataWithUrlString:; complite:
-//    }
+    if (name==nil||[name isEqualToString:@""]) {
+        [SVProgressHUD showErrorWithStatus:@"号码有误"];
+    }else{
+        [SVProgressHUD show];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+            UserDao *userDao = [[UserDao alloc] init];
+            BOOL b = [userDao sendValidateCodeWithName:name];
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                if (b==YES) {
+                    [SVProgressHUD showSuccessWithStatus:@"发送成功"];
+                }else{
+                    [SVProgressHUD showErrorWithStatus:@"发送失败"];
+                }
+            });
+        });
+    }
 }
 
 -(void)registerWithName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm onViewController:(RegisterViewController *)viewController{
     if ([self validateRegisterName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm]) {
-        [viewController.navigationController popViewControllerAnimated:YES];
-        [viewController.delegate registerSuccessWithLoginname:name andPasswd:passwd];
+        
+        [SVProgressHUD show];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+            UserDao *userDao = [[UserDao alloc] init];
+            BOOL b = [userDao registerWithName:name andCode:codeNumber andPasswd:passwd andPasswordConfirm:passwdConfirm];
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                if (b==YES) {
+                    [SVProgressHUD showSuccessWithStatus:@"注册成功"];
+                    [viewController.navigationController popViewControllerAnimated:YES];
+                    [viewController.delegate registerSuccessWithLoginname:name andPasswd:passwd];
+                }else{
+                    [SVProgressHUD showErrorWithStatus:@"注册失败"];
+                }
+            });
+        });
     }
 }
 
@@ -49,7 +77,6 @@
         [SVProgressHUD showErrorWithStatus:@"两次密码输入不一致"];
         return NO;
     }else{
-        [SVProgressHUD showSuccessWithStatus:@"注册成功"];
         return YES;
     }
 }
